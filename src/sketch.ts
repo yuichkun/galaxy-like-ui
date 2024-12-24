@@ -73,6 +73,39 @@ export const sketch = (p: p5) => {
     MIN_ZOOM = Math.min(xScale, yScale) * 0.6; // Reduced from 0.8 to 0.6 for more margin
   };
 
+  // Calculate center and set initial pan position
+  const calculateCenter = () => {
+    // Find bounding box of points (same as in calculateMinZoom)
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    points.forEach(([x, y]) => {
+      const mappedX = p.map(x, -2, 2, 100, p.width - 100);
+      const mappedY = p.map(y, -2, 2, 100, p.height - 100);
+      minX = Math.min(minX, mappedX);
+      maxX = Math.max(maxX, mappedX);
+      minY = Math.min(minY, mappedY);
+      maxY = Math.max(maxY, mappedY);
+    });
+
+    // Add padding (same as in calculateMinZoom)
+    const padding = AVATAR_SIZE * 2;
+    minX -= padding;
+    maxX += padding;
+    minY -= padding;
+    maxY += padding;
+
+    // Calculate center of the bounding box
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    // Set pan offset to center everything
+    panOffset.x = p.width / 2 - centerX;
+    panOffset.y = p.height / 2 - centerY;
+  };
+
   // Pan state
   let isPanning = false;
   let panOffset = { x: 0, y: 0 };
@@ -191,12 +224,14 @@ export const sketch = (p: p5) => {
   const handleWindowResize = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
     calculateMinZoom(); // Recalculate min zoom on resize
+    calculateCenter(); // Recenter on resize
     zoomLevel = Math.max(zoomLevel, MIN_ZOOM); // Adjust current zoom if needed
   };
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     calculateMinZoom(); // Initial calculation
+    calculateCenter(); // Initial centering
     zoomLevel = MIN_ZOOM; // Start at minimum zoom
     p.windowResized = handleWindowResize;
     p.mouseWheel = handleMouseWheel;
