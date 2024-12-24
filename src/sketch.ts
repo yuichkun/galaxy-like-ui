@@ -37,6 +37,10 @@ export const sketch = (p: p5) => {
   const particles: Particle[] = [];
   let time = 0;
   let hoveredUserIndex: number | null = null;
+  let zoomLevel = 1;
+  const MIN_ZOOM = 0.1;
+  const MAX_ZOOM = 5;
+  const ZOOM_SENSITIVITY = 0.001;
 
   const distance = ([x1, y1]: number[], [x2, y2]: number[]) => {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -44,7 +48,31 @@ export const sketch = (p: p5) => {
 
   const isMouseOverUser = (x: number, y: number): boolean => {
     const d = distance([p.mouseX, p.mouseY], [x, y]);
-    return d < 15;
+    return d < 15 * zoomLevel;
+  };
+
+  // Transform coordinates based on zoom
+  const transformX = (x: number) => {
+    const centerX = p.width / 2;
+    const mappedX = p.map(x, -2, 2, 100, p.width - 100);
+    return centerX + (mappedX - centerX) * zoomLevel;
+  };
+
+  const transformY = (y: number) => {
+    const centerY = p.height / 2;
+    const mappedY = p.map(y, -2, 2, 100, p.height - 100);
+    return centerY + (mappedY - centerY) * zoomLevel;
+  };
+
+  const handleMouseWheel = (event: WheelEvent) => {
+    // Prevent default scrolling behavior
+    event.preventDefault();
+
+    // Update zoom level based on scroll direction
+    const delta = -event.deltaY * ZOOM_SENSITIVITY;
+    zoomLevel = p.constrain(zoomLevel + delta, MIN_ZOOM, MAX_ZOOM);
+
+    return false; // Prevent default
   };
 
   const drawUserInfo = (user: User, x: number, y: number) => {
@@ -103,6 +131,8 @@ export const sketch = (p: p5) => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     // Add window resize listener
     p.windowResized = handleWindowResize;
+    // Add mouse wheel listener
+    p.mouseWheel = handleMouseWheel;
   };
 
   p.draw = () => {
@@ -115,10 +145,10 @@ export const sketch = (p: p5) => {
         if (i < j) {
           const dist = distance(point1, point2);
           if (dist < 2) {
-            const x1 = p.map(point1[0], -2, 2, 100, p.width - 100);
-            const y1 = p.map(point1[1], -2, 2, 100, p.height - 100);
-            const x2 = p.map(point2[0], -2, 2, 100, p.width - 100);
-            const y2 = p.map(point2[1], -2, 2, 100, p.height - 100);
+            const x1 = transformX(point1[0]);
+            const y1 = transformY(point1[1]);
+            const x2 = transformX(point2[0]);
+            const y2 = transformY(point2[1]);
             const alpha = p.map(dist, 0, 2, 100, 0);
             p.stroke(100, 150, 255, alpha);
             p.line(x1, y1, x2, y2);
@@ -129,8 +159,8 @@ export const sketch = (p: p5) => {
 
     // Add new particles
     points.forEach(([x, y]) => {
-      const mappedX = p.map(x, -2, 2, 100, p.width - 100);
-      const mappedY = p.map(y, -2, 2, 100, p.height - 100);
+      const mappedX = transformX(x);
+      const mappedY = transformY(y);
       if (p.frameCount % 2 === 0) {
         particles.push(new Particle(p, mappedX, mappedY));
       }
@@ -147,17 +177,17 @@ export const sketch = (p: p5) => {
 
     // Draw user nodes with orbital effect
     points.forEach(([x, y], i) => {
-      const mappedX = p.map(x, -2, 2, 100, p.width - 100);
-      const mappedY = p.map(y, -2, 2, 100, p.height - 100);
+      const mappedX = transformX(x);
+      const mappedY = transformY(y);
 
       if (isMouseOverUser(mappedX, mappedY)) {
         hoveredUserIndex = i;
       }
 
       // Orbital glow
-      const glowSize = 30 + Math.sin(time + i) * 5;
+      const glowSize = (30 + Math.sin(time + i) * 5) * zoomLevel;
       p.noStroke();
-      for (let size = glowSize; size > 0; size -= 2) {
+      for (let size = glowSize; size > 0; size -= 2 * zoomLevel) {
         const alpha = p.map(size, glowSize, 0, 0, 50);
         p.fill(100, 150, 255, alpha);
         p.ellipse(mappedX, mappedY, size, size);
@@ -165,12 +195,12 @@ export const sketch = (p: p5) => {
 
       // Core of the node
       p.fill(200, 220, 255);
-      p.ellipse(mappedX, mappedY, 15, 15);
+      p.ellipse(mappedX, mappedY, 15 * zoomLevel, 15 * zoomLevel);
 
       // Label
       p.fill(255);
-      p.textSize(12);
-      p.text(`User ${i + 1}`, mappedX + 15, mappedY);
+      p.textSize(12 * zoomLevel);
+      p.text(`User ${i + 1}`, mappedX + 15 * zoomLevel, mappedY);
 
       // Draw hover info
       if (hoveredUserIndex === i) {
