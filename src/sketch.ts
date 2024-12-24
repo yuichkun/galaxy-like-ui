@@ -190,7 +190,7 @@ export const sketch = (p: p5) => {
     points.forEach(([x, y]) => {
       const mappedX = transformX(x);
       const mappedY = transformY(y);
-      if (p.frameCount % 2 === 0) {
+      if (p.frameCount % 6 === 0) {
         particles.push(new Particle(p, mappedX, mappedY));
       }
     });

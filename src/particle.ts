@@ -9,16 +9,16 @@ export class Particle {
 
   constructor(private p: p5, x: number, y: number) {
     this.pos = p.createVector(x, y);
-    this.vel = p5.Vector.random2D().mult(p.random(0.2, 1));
+    this.vel = p5.Vector.random2D().mult(p.random(0.1, 0.5));
     this.acc = p.createVector(0, 0);
-    this.alpha = p.random(100, 200);
-    this.size = p.random(1, 3);
+    this.alpha = p.random(50, 100);
+    this.size = p.random(0.5, 1.5);
   }
 
   update() {
     this.vel.add(this.acc);
     this.pos.add(this.vel);
-    this.alpha -= 1;
+    this.alpha -= 0.5;
   }
 
   isDead() {
