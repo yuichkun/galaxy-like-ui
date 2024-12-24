@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "ml-pca": "4.1.1",
     "p5": "1.11.2"
   },
   "devDependencies": {
