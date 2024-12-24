@@ -1,5 +1,6 @@
 export type User = {
   id: string;
+  name: string;
   skills: Record<string, number>;
   scores: {
     e_score: number;

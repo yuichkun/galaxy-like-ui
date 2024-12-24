@@ -316,11 +316,7 @@ export const sketch = (p: p5) => {
       p.fill(255);
       p.textSize(12 * zoomLevel);
       p.textAlign(p.CENTER);
-      p.text(
-        `User ${i + 1}`,
-        mappedX,
-        mappedY + (AVATAR_SIZE / 2 + 15) * zoomLevel
-      );
+      p.text(user.name, mappedX, mappedY + (AVATAR_SIZE / 2 + 15) * zoomLevel);
 
       // Draw hover info
       if (hoveredUserIndex === i) {
