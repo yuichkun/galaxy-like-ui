@@ -157,11 +157,16 @@ export const sketch = (p: p5) => {
     p.mousePressed = handleMousePressed;
     p.mouseReleased = handleMouseReleased;
     p.mouseDragged = handleMouseDragged;
+    // Set default cursor
+    p.cursor("grab");
   };
 
   p.draw = () => {
     p.background(10, 15, 30);
     time += 0.01;
+
+    // Reset cursor to default at the start of each frame
+    p.cursor(isPanning ? "grabbing" : "grab");
 
     // Draw connections between points
     points.forEach((point1, i) => {
@@ -206,6 +211,8 @@ export const sketch = (p: p5) => {
 
       if (isMouseOverUser(mappedX, mappedY)) {
         hoveredUserIndex = i;
+        // Change cursor to pointer when hovering over a user
+        p.cursor("pointer");
       }
 
       // Orbital glow
