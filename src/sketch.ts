@@ -38,10 +38,40 @@ export const sketch = (p: p5) => {
   let time = 0;
   let hoveredUserIndex: number | null = null;
   let zoomLevel = 1;
-  const MIN_ZOOM = 0.1;
   const MAX_ZOOM = 5;
   const ZOOM_SENSITIVITY = 0.001;
   const AVATAR_SIZE = 40; // Base size for avatars
+  let MIN_ZOOM = 0.1; // This will be calculated dynamically
+
+  // Calculate minimum zoom level to fit all points
+  const calculateMinZoom = () => {
+    // Find bounding box of points
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    points.forEach(([x, y]) => {
+      const mappedX = p.map(x, -2, 2, 100, p.width - 100);
+      const mappedY = p.map(y, -2, 2, 100, p.height - 100);
+      minX = Math.min(minX, mappedX);
+      maxX = Math.max(maxX, mappedX);
+      minY = Math.min(minY, mappedY);
+      maxY = Math.max(maxY, mappedY);
+    });
+
+    // Add padding for labels and hover info
+    const padding = AVATAR_SIZE * 2; // Account for avatar size and labels
+    const contentWidth = maxX - minX + padding * 2;
+    const contentHeight = maxY - minY + padding * 2;
+
+    // Calculate required scale for both dimensions
+    const xScale = p.width / contentWidth;
+    const yScale = p.height / contentHeight;
+
+    // Use the smaller scale and add extra margin
+    MIN_ZOOM = Math.min(xScale, yScale) * 0.6; // Reduced from 0.8 to 0.6 for more margin
+  };
 
   // Pan state
   let isPanning = false;
@@ -160,10 +190,14 @@ export const sketch = (p: p5) => {
 
   const handleWindowResize = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    calculateMinZoom(); // Recalculate min zoom on resize
+    zoomLevel = Math.max(zoomLevel, MIN_ZOOM); // Adjust current zoom if needed
   };
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
+    calculateMinZoom(); // Initial calculation
+    zoomLevel = MIN_ZOOM; // Start at minimum zoom
     p.windowResized = handleWindowResize;
     p.mouseWheel = handleMouseWheel;
     p.mousePressed = handleMousePressed;
