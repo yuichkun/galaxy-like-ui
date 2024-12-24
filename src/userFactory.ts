@@ -164,32 +164,62 @@ export const generateSampleUsers = () =>
   UserFactory.createClusters([
     {
       // TypeScript experts cluster
-      count: 5,
+      count: 10,
       baseTemplate: {
         skills: { typescript: 5, javascript: 4 },
         scores: { e_score: 0.8, i_score: 0.7, b_score: 0.6 },
         companies: ["Google", "Microsoft"],
       },
-      variance: 0.2,
+      variance: 0.9,
     },
     {
       // Python data scientists cluster
-      count: 5,
+      count: 10,
       baseTemplate: {
-        skills: { python: 5, typescript: 2 },
+        skills: { python: 5 },
         scores: { e_score: 0.6, i_score: 0.9, b_score: 0.7 },
         companies: ["Meta", "Amazon"],
       },
-      variance: 0.2,
+      variance: 0.9,
     },
     {
       // Full-stack developers cluster
-      count: 5,
+      count: 10,
       baseTemplate: {
         skills: { typescript: 4, python: 3, java: 3 },
         scores: { e_score: 0.7, i_score: 0.7, b_score: 0.8 },
         companies: ["Netflix", "Twitter"],
       },
-      variance: 0.2,
+      variance: 0.9,
+    },
+    {
+      // Java enterprise developers cluster
+      count: 8,
+      baseTemplate: {
+        skills: { java: 5, python: 2 },
+        scores: { e_score: 0.5, i_score: 0.8, b_score: 0.9 },
+        companies: ["Oracle", "IBM"],
+      },
+      variance: 0.8,
+    },
+    {
+      // Mobile developers cluster
+      count: 8,
+      baseTemplate: {
+        skills: { typescript: 4, java: 4 },
+        scores: { e_score: 0.7, i_score: 0.6, b_score: 0.7 },
+        companies: ["Apple", "Meta"],
+      },
+      variance: 0.85,
+    },
+    {
+      // DevOps engineers cluster
+      count: 7,
+      baseTemplate: {
+        skills: { python: 4, typescript: 3 },
+        scores: { e_score: 0.6, i_score: 0.8, b_score: 0.9 },
+        companies: ["Amazon", "Microsoft"],
+      },
+      variance: 0.8,
     },
   ]);
