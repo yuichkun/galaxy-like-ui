@@ -42,6 +42,11 @@ export const sketch = (p: p5) => {
   const MAX_ZOOM = 5;
   const ZOOM_SENSITIVITY = 0.001;
 
+  // Pan state
+  let isPanning = false;
+  let panOffset = { x: 0, y: 0 };
+  let lastMousePos = { x: 0, y: 0 };
+
   const distance = ([x1, y1]: number[], [x2, y2]: number[]) => {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   };
@@ -51,28 +56,45 @@ export const sketch = (p: p5) => {
     return d < 15 * zoomLevel;
   };
 
-  // Transform coordinates based on zoom
+  // Transform coordinates based on zoom and pan
   const transformX = (x: number) => {
     const centerX = p.width / 2;
     const mappedX = p.map(x, -2, 2, 100, p.width - 100);
-    return centerX + (mappedX - centerX) * zoomLevel;
+    return centerX + (mappedX - centerX) * zoomLevel + panOffset.x;
   };
 
   const transformY = (y: number) => {
     const centerY = p.height / 2;
     const mappedY = p.map(y, -2, 2, 100, p.height - 100);
-    return centerY + (mappedY - centerY) * zoomLevel;
+    return centerY + (mappedY - centerY) * zoomLevel + panOffset.y;
   };
 
   const handleMouseWheel = (event: WheelEvent) => {
-    // Prevent default scrolling behavior
     event.preventDefault();
-
-    // Update zoom level based on scroll direction
     const delta = -event.deltaY * ZOOM_SENSITIVITY;
     zoomLevel = p.constrain(zoomLevel + delta, MIN_ZOOM, MAX_ZOOM);
+    return false;
+  };
 
-    return false; // Prevent default
+  const handleMousePressed = () => {
+    if (hoveredUserIndex === null) {
+      isPanning = true;
+      lastMousePos = { x: p.mouseX, y: p.mouseY };
+    }
+  };
+
+  const handleMouseReleased = () => {
+    isPanning = false;
+  };
+
+  const handleMouseDragged = () => {
+    if (isPanning) {
+      const dx = p.mouseX - lastMousePos.x;
+      const dy = p.mouseY - lastMousePos.y;
+      panOffset.x += dx;
+      panOffset.y += dy;
+      lastMousePos = { x: p.mouseX, y: p.mouseY };
+    }
   };
 
   const drawUserInfo = (user: User, x: number, y: number) => {
@@ -129,10 +151,12 @@ export const sketch = (p: p5) => {
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    // Add window resize listener
     p.windowResized = handleWindowResize;
-    // Add mouse wheel listener
     p.mouseWheel = handleMouseWheel;
+    // Add mouse event handlers
+    p.mousePressed = handleMousePressed;
+    p.mouseReleased = handleMouseReleased;
+    p.mouseDragged = handleMouseDragged;
   };
 
   p.draw = () => {
