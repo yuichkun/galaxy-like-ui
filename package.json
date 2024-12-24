@@ -1,0 +1,19 @@
+{
+  "name": "galaxy-like-ui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "p5": "1.11.2"
+  },
+  "devDependencies": {
+    "@types/p5": "1.7.6",
+    "parcel": "2.13.3"
+  }
+}
