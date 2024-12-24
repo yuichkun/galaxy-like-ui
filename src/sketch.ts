@@ -95,8 +95,14 @@ export const sketch = (p: p5) => {
     p.pop();
   };
 
+  const handleWindowResize = () => {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+  };
+
   p.setup = () => {
-    p.createCanvas(800, 800);
+    p.createCanvas(p.windowWidth, p.windowHeight);
+    // Add window resize listener
+    p.windowResized = handleWindowResize;
   };
 
   p.draw = () => {
