@@ -179,26 +179,45 @@ export const sketch = (p: p5) => {
     // Calculate box dimensions
     const boxWidth = 200;
     const boxHeight = 80;
+    const margin = 10;
 
-    // Adjust position to keep box within canvas bounds
-    let boxX = x + 20;
-    let boxY = y - boxHeight;
+    // Calculate available space in each direction
+    const spaceLeft = x - margin;
+    const spaceRight = p.width - (x + margin);
+    const spaceTop = y - margin;
+    const spaceBottom = p.height - (y + margin);
 
-    // Keep box within horizontal bounds
-    if (boxX + boxWidth > p.width) {
-      boxX = x - boxWidth - 20;
+    // Determine best position for the box
+    let boxX, boxY;
+
+    // First, try to position horizontally (prefer right side if space available)
+    if (spaceRight >= boxWidth) {
+      boxX = x + margin;
+    } else if (spaceLeft >= boxWidth) {
+      boxX = x - margin - boxWidth;
+    } else {
+      boxX = p.width - boxWidth - margin; // Fallback to right edge with margin
     }
 
-    // Keep box within vertical bounds
-    if (boxY < 0) {
-      boxY = y + 20;
+    // Then, try to position vertically (prefer above if space available)
+    // Also consider the username text height when positioning below
+    const usernameHeight = (AVATAR_SIZE / 2 + 25) * zoomLevel;
+
+    if (spaceTop >= boxHeight) {
+      boxY = y - margin - boxHeight;
+    } else if (spaceBottom >= boxHeight + usernameHeight) {
+      boxY = y + margin + usernameHeight;
+    } else {
+      boxY = margin; // Fallback to top edge with margin
     }
 
-    p.fill(255);
+    // Draw box background with slight transparency
+    p.fill(255, 250);
     p.stroke(100, 150, 255);
     p.strokeWeight(1);
-    p.rect(boxX, boxY, boxWidth, boxHeight);
+    p.rect(boxX, boxY, boxWidth, boxHeight, 5); // Added rounded corners
 
+    // Draw content
     p.noStroke();
     p.fill(0);
     p.textSize(12);
@@ -289,6 +308,7 @@ export const sketch = (p: p5) => {
     points.forEach(([x, y], i) => {
       const mappedX = transformX(x);
       const mappedY = transformY(y);
+      const user = users[i];
 
       if (isMouseOverUser(mappedX, mappedY)) {
         hoveredUserIndex = i;
@@ -305,18 +325,36 @@ export const sketch = (p: p5) => {
       }
 
       // Draw avatar
-      const user = users[i];
       const img = avatarImages[user.avatar];
       if (img) {
         const size = AVATAR_SIZE * zoomLevel;
         p.image(img, mappedX, mappedY, size, size);
       }
 
-      // Label
+      // Draw username with background
+      const userName = user.name;
+      const textSize = 12 * zoomLevel;
+      p.textSize(textSize);
+      const textWidth = p.textWidth(userName);
+      const textHeight = textSize;
+      const textY = mappedY + (AVATAR_SIZE / 2 + 15) * zoomLevel;
+      const padding = 4 * zoomLevel;
+
+      // Draw text background
+      p.fill(10, 15, 30, 230); // Slightly transparent background matching the canvas color
+      p.noStroke();
+      p.rect(
+        mappedX - textWidth / 2 - padding,
+        textY - textHeight,
+        textWidth + padding * 2,
+        textHeight + padding,
+        4 * zoomLevel // Rounded corners
+      );
+
+      // Draw text
       p.fill(255);
-      p.textSize(12 * zoomLevel);
       p.textAlign(p.CENTER);
-      p.text(user.name, mappedX, mappedY + (AVATAR_SIZE / 2 + 15) * zoomLevel);
+      p.text(userName, mappedX, textY);
 
       // Draw hover info
       if (hoveredUserIndex === i) {
