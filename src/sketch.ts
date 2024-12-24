@@ -41,11 +41,15 @@ export const sketch = (p: p5) => {
   const MIN_ZOOM = 0.1;
   const MAX_ZOOM = 5;
   const ZOOM_SENSITIVITY = 0.001;
+  const AVATAR_SIZE = 40; // Base size for avatars
 
   // Pan state
   let isPanning = false;
   let panOffset = { x: 0, y: 0 };
   let lastMousePos = { x: 0, y: 0 };
+
+  // Store loaded images
+  const avatarImages: Record<string, p5.Image> = {};
 
   const distance = ([x1, y1]: number[], [x2, y2]: number[]) => {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -53,7 +57,16 @@ export const sketch = (p: p5) => {
 
   const isMouseOverUser = (x: number, y: number): boolean => {
     const d = distance([p.mouseX, p.mouseY], [x, y]);
-    return d < 15 * zoomLevel;
+    return d < (AVATAR_SIZE / 2) * zoomLevel;
+  };
+
+  // Preload avatar images
+  const loadAvatarImages = () => {
+    users.forEach((user, index) => {
+      if (!avatarImages[user.avatar]) {
+        avatarImages[user.avatar] = p.loadImage(user.avatar);
+      }
+    });
   };
 
   // Transform coordinates based on zoom and pan
@@ -153,19 +166,18 @@ export const sketch = (p: p5) => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.windowResized = handleWindowResize;
     p.mouseWheel = handleMouseWheel;
-    // Add mouse event handlers
     p.mousePressed = handleMousePressed;
     p.mouseReleased = handleMouseReleased;
     p.mouseDragged = handleMouseDragged;
-    // Set default cursor
     p.cursor("grab");
+    p.imageMode(p.CENTER);
+    loadAvatarImages();
   };
 
   p.draw = () => {
     p.background(10, 15, 30);
     time += 0.01;
 
-    // Reset cursor to default at the start of each frame
     p.cursor(isPanning ? "grabbing" : "grab");
 
     // Draw connections between points
@@ -204,19 +216,18 @@ export const sketch = (p: p5) => {
       }
     }
 
-    // Draw user nodes with orbital effect
+    // Draw user nodes with orbital effect and avatars
     points.forEach(([x, y], i) => {
       const mappedX = transformX(x);
       const mappedY = transformY(y);
 
       if (isMouseOverUser(mappedX, mappedY)) {
         hoveredUserIndex = i;
-        // Change cursor to pointer when hovering over a user
         p.cursor("pointer");
       }
 
       // Orbital glow
-      const glowSize = (30 + Math.sin(time + i) * 5) * zoomLevel;
+      const glowSize = (AVATAR_SIZE + Math.sin(time + i) * 5) * zoomLevel;
       p.noStroke();
       for (let size = glowSize; size > 0; size -= 2 * zoomLevel) {
         const alpha = p.map(size, glowSize, 0, 0, 50);
@@ -224,14 +235,23 @@ export const sketch = (p: p5) => {
         p.ellipse(mappedX, mappedY, size, size);
       }
 
-      // Core of the node
-      p.fill(200, 220, 255);
-      p.ellipse(mappedX, mappedY, 15 * zoomLevel, 15 * zoomLevel);
+      // Draw avatar
+      const user = users[i];
+      const img = avatarImages[user.avatar];
+      if (img) {
+        const size = AVATAR_SIZE * zoomLevel;
+        p.image(img, mappedX, mappedY, size, size);
+      }
 
       // Label
       p.fill(255);
       p.textSize(12 * zoomLevel);
-      p.text(`User ${i + 1}`, mappedX + 15 * zoomLevel, mappedY);
+      p.textAlign(p.CENTER);
+      p.text(
+        `User ${i + 1}`,
+        mappedX,
+        mappedY + (AVATAR_SIZE / 2 + 15) * zoomLevel
+      );
 
       // Draw hover info
       if (hoveredUserIndex === i) {

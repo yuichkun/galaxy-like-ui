@@ -1,4 +1,5 @@
 import { User } from "./types";
+import { faker } from "@faker-js/faker";
 
 export class UserFactory {
   private static readonly SKILL_LEVELS = [1, 2, 3, 4, 5];
@@ -20,6 +21,10 @@ export class UserFactory {
     "Netflix",
     "Twitter",
   ];
+
+  private static generateAvatar(seed: string): string {
+    return faker.image.avatarGitHub();
+  }
 
   /**
    * Creates a cluster of users with similar characteristics
@@ -57,7 +62,8 @@ export class UserFactory {
     baseTemplate: Partial<User>,
     variance: number
   ): User {
-    const base = this.createDefaultUser();
+    const id = faker.string.uuid();
+    const base = this.createDefaultUser(id);
 
     // Vary skills
     if (baseTemplate.skills) {
@@ -109,8 +115,9 @@ export class UserFactory {
     return base;
   }
 
-  private static createDefaultUser(): User {
+  private static createDefaultUser(id: string): User {
     return {
+      id,
       skills: {},
       scores: {
         e_score: 0.5,
@@ -118,6 +125,7 @@ export class UserFactory {
         b_score: 0.5,
       },
       companies: [],
+      avatar: this.generateAvatar(id),
     };
   }
 
