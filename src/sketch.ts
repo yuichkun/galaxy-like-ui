@@ -149,7 +149,7 @@ export const sketch = (p: p5) => {
 
     // Scores
     const scores = Object.entries(user.scores)
-      .map(([key, value]) => `${key}: ${value}`)
+      .map(([key, value]) => `${key}: ${value.toFixed(2)}`)
       .join(", ");
     p.text(`Scores: ${scores}`, boxX + 10, boxY + 40);
 
