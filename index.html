@@ -75,10 +75,37 @@
         margin: 0 4px 4px 0;
         font-size: 12px;
       }
+      #load-data-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #64B5F6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: sans-serif;
+        font-size: 14px;
+        text-transform: uppercase;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      #load-data-btn:hover {
+        background: #90CAF9;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      }
+      #load-data-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
     </style>
   </head>
   <body>
     <div id="canvas-container"></div>
     <div id="user-info" class="empty">Select a user to view details</div>
+    <button id="load-data-btn">Load Data</button>
   </body>
 </html>

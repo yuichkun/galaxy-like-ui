@@ -58,3 +58,11 @@ export function updateUserInfo(user: User | null) {
     </div>
   `;
 }
+
+// Initialize load data button
+const loadDataBtn = document.getElementById("load-data-btn");
+if (loadDataBtn) {
+  loadDataBtn.addEventListener("click", () => {
+    alert("Loading data...");
+  });
+}
