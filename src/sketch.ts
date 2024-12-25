@@ -6,20 +6,43 @@ import { AVATAR_SIZE, distance, transformCoordinate } from "./visualConfig";
 import { drawUserNode } from "./drawingUtils";
 import { ZoomPanManager } from "./zoomPanManager";
 import { updateUserInfo } from "./app";
+import { User } from "./types";
 
-// Generate sample users and prepare data
-const users = generateSampleUsers();
-const reducedData = performPCA(users);
+// Initial data
+let users = generateSampleUsers();
+let reducedData = performPCA(users);
+let sketchInstance: ReturnType<typeof initSketch> | null = null;
 
-export const sketch = (p: p5) => {
+export function updateData(newUsers: User[]) {
+  users = newUsers;
+  reducedData = performPCA(users);
+  sketchInstance?.updatePoints();
+  updateUserInfo(null); // Reset user info panel
+}
+
+function initSketch(p: p5) {
   // State
-  const points: number[][] = reducedData.to2DArray();
+  let points: number[][] = reducedData.to2DArray();
   const particles: Particle[] = [];
-  const avatarImages: Record<string, p5.Image> = {};
+  let avatarImages: Record<string, p5.Image> = {};
   let time = 0;
   let hoveredUserIndex: number | null = null;
   let lastShownUserIndex: number | null = null;
   let zoomPanManager: ZoomPanManager;
+
+  // Update points when data changes
+  const updatePoints = () => {
+    // Clear existing state
+    particles.length = 0;
+    avatarImages = {};
+    hoveredUserIndex = null;
+    lastShownUserIndex = null;
+
+    // Update with new data
+    points = reducedData.to2DArray();
+    zoomPanManager = new ZoomPanManager(p, points);
+    loadAvatarImages();
+  };
 
   // Utility functions
   const isMouseOverUser = (x: number, y: number): boolean => {
@@ -150,4 +173,11 @@ export const sketch = (p: p5) => {
     // Reset hover state but keep the last shown user info
     hoveredUserIndex = userHovered ? hoveredUserIndex : null;
   };
+
+  return { updatePoints };
+}
+
+export const sketch = (p: p5) => {
+  sketchInstance = initSketch(p);
+  return sketchInstance;
 };

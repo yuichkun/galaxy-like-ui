@@ -118,7 +118,7 @@ export class UserFactory {
   private static createDefaultUser(id: string): User {
     return {
       id,
-      name: faker.internet.userName(),
+      name: faker.internet.username(),
       skills: {},
       scores: {
         e_score: 0.5,
