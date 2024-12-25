@@ -1,19 +1,9 @@
 import { PCA } from "ml-pca";
 import { User } from "./types";
+import { DEFAULT_WEIGHTS } from "./config";
 
 const MAX_SCORE = 5;
-
-type FeatureWeights = {
-  skills: number;
-  scores: number;
-  companies: number;
-};
-
-const DEFAULT_WEIGHTS: FeatureWeights = {
-  skills: 1,
-  scores: 1,
-  companies: 1,
-};
+type FeatureWeights = typeof DEFAULT_WEIGHTS;
 
 export function generateVectors(
   users: User[],

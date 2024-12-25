@@ -7,6 +7,7 @@ import { drawUserNode } from "./drawingUtils";
 import { ZoomPanManager } from "./zoomPanManager";
 import { updateUserInfo } from "./app";
 import { User } from "./types";
+import { DEFAULT_WEIGHTS } from "./config";
 
 // Initial data
 let users = generateSampleUsers();
@@ -14,11 +15,7 @@ let reducedData = performPCA(users);
 let sketchInstance: ReturnType<typeof initSketch> | null = null;
 
 // Weight controls
-let currentWeights = {
-  skills: 1,
-  scores: 1,
-  companies: 1,
-};
+let currentWeights = { ...DEFAULT_WEIGHTS };
 let connectionDistance = 2;
 
 function setupControls() {
