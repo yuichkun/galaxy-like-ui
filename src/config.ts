@@ -1,6 +1,6 @@
 export const DEFAULT_WEIGHTS = {
-  skills: 0.3,
-  scores: 0.2,
+  skills: 0.6,
+  scores: 0.9,
   companies: 0.1,
 };
 
