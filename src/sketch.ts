@@ -5,6 +5,7 @@ import { performPCA } from "./pca";
 import { AVATAR_SIZE, distance, transformCoordinate } from "./visualConfig";
 import { drawUserNode } from "./drawingUtils";
 import { ZoomPanManager } from "./zoomPanManager";
+import { updateUserInfo } from "./app";
 
 // Generate sample users and prepare data
 const users = generateSampleUsers();
@@ -63,7 +64,12 @@ export const sketch = (p: p5) => {
     };
     p.mouseWheel = (e: { deltaY: number }) =>
       zoomPanManager.handleMouseWheel(e as WheelEvent);
-    p.mousePressed = () => zoomPanManager.handleMousePressed(hoveredUserIndex);
+    p.mousePressed = () => {
+      zoomPanManager.handleMousePressed(hoveredUserIndex);
+      if (hoveredUserIndex !== null) {
+        updateUserInfo(users[hoveredUserIndex]);
+      }
+    };
     p.mouseReleased = () => zoomPanManager.handleMouseReleased();
     p.mouseDragged = () => zoomPanManager.handleMouseDragged();
 
@@ -112,6 +118,9 @@ export const sketch = (p: p5) => {
       }
     }
 
+    // Track if any user is hovered this frame
+    let userHovered = false;
+
     // Draw users
     points.forEach(([x, y], i) => {
       const mappedX = transformX(x);
@@ -119,6 +128,7 @@ export const sketch = (p: p5) => {
 
       if (isMouseOverUser(mappedX, mappedY)) {
         hoveredUserIndex = i;
+        userHovered = true;
         p.cursor("pointer");
       }
 
@@ -135,6 +145,10 @@ export const sketch = (p: p5) => {
       );
     });
 
-    hoveredUserIndex = null;
+    // Update user info if no user is hovered
+    if (!userHovered) {
+      hoveredUserIndex = null;
+      updateUserInfo(null);
+    }
   };
 };
