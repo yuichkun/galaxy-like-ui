@@ -58,9 +58,10 @@ export async function loadCSV(file: File): Promise<ValidatedUser[]> {
           // Process all GitHub API requests in parallel
           const processedData = await Promise.all(
             rows.map(async (row: any) => {
-              const avatarUrl = row.github_identifier
-                ? await getGitHubAvatarUrl(row.github_identifier)
-                : faker.image.avatarGitHub();
+              // const avatarUrl = row.github_identifier
+              //   ? await getGitHubAvatarUrl(row.github_identifier)
+              //   : faker.image.avatarGitHub();
+              const avatarUrl = faker.image.avatarGitHub();
 
               return {
                 id: row.id || faker.string.uuid(),
