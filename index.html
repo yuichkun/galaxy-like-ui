@@ -101,11 +101,77 @@
         transform: translateY(1px);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
+      #weight-controls {
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        background: rgba(20, 25, 40, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        color: white;
+      }
+      .weight-control {
+        margin-bottom: 15px;
+      }
+      .weight-control label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #90CAF9;
+      }
+      .weight-control input {
+        width: 200px;
+      }
+      .weight-control .value {
+        display: inline-block;
+        margin-left: 10px;
+        min-width: 30px;
+      }
     </style>
   </head>
   <body>
     <div id="canvas-container"></div>
     <div id="user-info" class="empty">Select a user to view details</div>
     <button id="load-data-btn">Load Data</button>
+    <div id="weight-controls">
+      <div class="weight-control">
+        <label for="skills-weight">Skills Weight</label>
+        <input
+          type="range"
+          id="skills-weight"
+          min="0"
+          max="2"
+          step="0.1"
+          value="1"
+        />
+        <span class="value">1.0</span>
+      </div>
+      <div class="weight-control">
+        <label for="scores-weight">Scores Weight</label>
+        <input
+          type="range"
+          id="scores-weight"
+          min="0"
+          max="2"
+          step="0.1"
+          value="1"
+        />
+        <span class="value">1.0</span>
+      </div>
+      <div class="weight-control">
+        <label for="companies-weight">Companies Weight</label>
+        <input
+          type="range"
+          id="companies-weight"
+          min="0"
+          max="2"
+          step="0.1"
+          value="1"
+        />
+        <span class="value">1.0</span>
+      </div>
+    </div>
   </body>
 </html>

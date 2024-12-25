@@ -13,9 +13,36 @@ let users = generateSampleUsers();
 let reducedData = performPCA(users);
 let sketchInstance: ReturnType<typeof initSketch> | null = null;
 
+// Weight controls
+let currentWeights = {
+  skills: 1,
+  scores: 1,
+  companies: 1,
+};
+
+function setupWeightControls() {
+  const controls = ["skills", "scores", "companies"] as const;
+  controls.forEach((control) => {
+    const slider = document.getElementById(
+      `${control}-weight`
+    ) as HTMLInputElement;
+    const valueDisplay = slider.nextElementSibling as HTMLSpanElement;
+
+    slider.addEventListener("input", (e) => {
+      const value = parseFloat((e.target as HTMLInputElement).value);
+      valueDisplay.textContent = value.toFixed(1);
+      currentWeights[control] = value;
+
+      // Recalculate PCA with new weights
+      reducedData = performPCA(users, currentWeights);
+      sketchInstance?.updatePoints();
+    });
+  });
+}
+
 export function updateData(newUsers: User[]) {
   users = newUsers;
-  reducedData = performPCA(users);
+  reducedData = performPCA(users, currentWeights);
   sketchInstance?.updatePoints();
   updateUserInfo(null); // Reset user info panel
 }
@@ -179,5 +206,6 @@ function initSketch(p: p5) {
 
 export const sketch = (p: p5) => {
   sketchInstance = initSketch(p);
+  setupWeightControls(); // Setup weight controls when sketch initializes
   return sketchInstance;
 };
