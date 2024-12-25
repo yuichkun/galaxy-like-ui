@@ -13,39 +13,42 @@ export function drawUserNode(
   hoveredUserIndex: number | null,
   avatarImages: Record<string, p5.Image>
 ) {
+  // Scale down sizes as we zoom in (except avatar)
+  const scaleFactor = 1 / Math.sqrt(zoomLevel);
+  const currentTextSize = 12 * scaleFactor;
+  const currentPadding = 4 * scaleFactor;
+  const currentStrokeWeight = 2 * scaleFactor;
+
   // Draw glow
-  const glowSize = (AVATAR_SIZE + Math.sin(time + index) * 5) * zoomLevel;
+  const glowSize = AVATAR_SIZE + Math.sin(time + index) * 5;
   p.noStroke();
-  for (let size = glowSize; size > 0; size -= 2 * zoomLevel) {
+  for (let size = glowSize; size > 0; size -= 2) {
     const alpha = p.map(size, glowSize, 0, 0, 50);
     p.fill(100, 150, 255, alpha);
     p.ellipse(x, y, size, size);
   }
 
-  // Draw avatar
+  // Draw avatar (constant size)
   const img = avatarImages[user.avatar];
   if (img) {
-    const size = AVATAR_SIZE * zoomLevel;
-    p.image(img, x, y, size, size);
+    p.image(img, x, y, AVATAR_SIZE, AVATAR_SIZE);
   }
 
   // Draw username with background
   const userName = user.name;
-  const textSize = 12 * zoomLevel;
-  p.textSize(textSize);
+  p.textSize(currentTextSize);
   const textWidth = p.textWidth(userName);
-  const textHeight = textSize;
-  const textY = y + (AVATAR_SIZE / 2 + 15) * zoomLevel;
-  const padding = 4 * zoomLevel;
+  const textHeight = currentTextSize;
+  const textY = y + (AVATAR_SIZE / 2 + 15 * scaleFactor);
 
   p.fill(10, 15, 30, 230);
   p.noStroke();
   p.rect(
-    x - textWidth / 2 - padding,
+    x - textWidth / 2 - currentPadding,
     textY - textHeight,
-    textWidth + padding * 2,
-    textHeight + padding,
-    4 * zoomLevel
+    textWidth + currentPadding * 2,
+    textHeight + currentPadding,
+    4 * scaleFactor
   );
 
   p.fill(255);
@@ -56,7 +59,7 @@ export function drawUserNode(
   if (hoveredUserIndex === index) {
     p.noFill();
     p.stroke(100, 150, 255);
-    p.strokeWeight(2 * zoomLevel);
-    p.ellipse(x, y, (AVATAR_SIZE + 10) * zoomLevel);
+    p.strokeWeight(currentStrokeWeight);
+    p.ellipse(x, y, AVATAR_SIZE + 10);
   }
 }

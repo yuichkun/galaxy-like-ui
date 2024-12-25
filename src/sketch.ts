@@ -67,33 +67,25 @@ function initSketch(p: p5) {
 
     // Update with new data
     points = reducedData.to2DArray();
-    zoomPanManager = new ZoomPanManager(p, points);
+    zoomPanManager = new ZoomPanManager();
     loadAvatarImages();
   };
 
   // Utility functions
   const isMouseOverUser = (x: number, y: number): boolean => {
     const d = distance([p.mouseX, p.mouseY], [x, y]);
-    return d < (AVATAR_SIZE / 2) * zoomPanManager.currentZoomLevel;
+    return d < AVATAR_SIZE / 2;
   };
 
-  const transformX = (x: number) =>
-    transformCoordinate(
-      x,
-      p,
-      "width",
-      zoomPanManager.currentZoomLevel,
-      zoomPanManager.currentPanOffset.x
-    );
+  const transformX = (x: number) => {
+    const { scale, offset } = zoomPanManager.getTransform();
+    return transformCoordinate(x, p, "width", scale, offset.x);
+  };
 
-  const transformY = (y: number) =>
-    transformCoordinate(
-      y,
-      p,
-      "height",
-      zoomPanManager.currentZoomLevel,
-      zoomPanManager.currentPanOffset.y
-    );
+  const transformY = (y: number) => {
+    const { scale, offset } = zoomPanManager.getTransform();
+    return transformCoordinate(y, p, "height", scale, offset.y);
+  };
 
   // Setup functions
   const loadAvatarImages = () => {
@@ -107,17 +99,27 @@ function initSketch(p: p5) {
   // p5.js lifecycle methods
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-    zoomPanManager = new ZoomPanManager(p, points);
+    zoomPanManager = new ZoomPanManager();
 
     p.windowResized = () => {
       p.resizeCanvas(p.windowWidth, p.windowHeight);
-      zoomPanManager.handleWindowResize();
     };
-    p.mouseWheel = (e: { deltaY: number }) =>
-      zoomPanManager.handleMouseWheel(e as WheelEvent);
-    p.mousePressed = () => zoomPanManager.handleMousePressed(hoveredUserIndex);
-    p.mouseReleased = () => zoomPanManager.handleMouseReleased();
-    p.mouseDragged = () => zoomPanManager.handleMouseDragged();
+    p.mouseWheel = (event: WheelEvent) => {
+      zoomPanManager.handleZoom(event.deltaY, p.mouseX, p.mouseY);
+    };
+    p.mousePressed = () => {
+      if (hoveredUserIndex === null) {
+        p.cursor("grabbing");
+      }
+    };
+    p.mouseReleased = () => {
+      p.cursor("grab");
+    };
+    p.mouseDragged = () => {
+      if (hoveredUserIndex === null) {
+        zoomPanManager.handlePan(p.mouseX - p.pmouseX, p.mouseY - p.pmouseY);
+      }
+    };
 
     p.cursor("grab");
     p.imageMode(p.CENTER);
@@ -127,7 +129,6 @@ function initSketch(p: p5) {
   p.draw = () => {
     p.background(10, 15, 30);
     time += 0.01;
-    p.cursor(zoomPanManager.isPanningActive ? "grabbing" : "grab");
 
     // Draw connections
     points.forEach((point1, i) => {
@@ -184,6 +185,7 @@ function initSketch(p: p5) {
         }
       }
 
+      const { scale } = zoomPanManager.getTransform();
       drawUserNode(
         p,
         mappedX,
@@ -191,7 +193,7 @@ function initSketch(p: p5) {
         users[i],
         i,
         time,
-        zoomPanManager.currentZoomLevel,
+        scale,
         hoveredUserIndex,
         avatarImages
       );
