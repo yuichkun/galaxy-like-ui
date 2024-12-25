@@ -13,9 +13,8 @@ export function drawUserNode(
   hoveredUserIndex: number | null,
   avatarImages: Record<string, p5.Image>
 ) {
-  // Scale down sizes as we zoom in (except avatar)
+  // Scale down only padding and stroke weight
   const scaleFactor = 1 / Math.sqrt(zoomLevel);
-  const currentTextSize = 12 * scaleFactor;
   const currentPadding = 4 * scaleFactor;
   const currentStrokeWeight = 2 * scaleFactor;
 
@@ -34,11 +33,11 @@ export function drawUserNode(
     p.image(img, x, y, AVATAR_SIZE, AVATAR_SIZE);
   }
 
-  // Draw username with background
+  // Draw username with background (constant text size)
   const userName = user.name;
-  p.textSize(currentTextSize);
+  p.textSize(12); // Keep text size constant
   const textWidth = p.textWidth(userName);
-  const textHeight = currentTextSize;
+  const textHeight = 12;
   const textY = y + (AVATAR_SIZE / 2 + 15 * scaleFactor);
 
   p.fill(10, 15, 30, 230);
