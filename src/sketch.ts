@@ -15,7 +15,7 @@ let reducedData = performPCA(users);
 let sketchInstance: ReturnType<typeof initSketch> | null = null;
 
 // Weight controls
-let currentWeights = { ...DEFAULT_WEIGHTS };
+let currentWeights: typeof DEFAULT_WEIGHTS = { ...DEFAULT_WEIGHTS };
 let connectionDistance = 2;
 
 function setupControls() {
