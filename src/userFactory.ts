@@ -22,7 +22,7 @@ export class UserFactory {
     "Twitter",
   ];
 
-  private static generateAvatar(seed: string): string {
+  private static generateAvatar(): string {
     return faker.image.avatarGitHub();
   }
 
@@ -126,7 +126,7 @@ export class UserFactory {
         b_score: 0.5,
       },
       companies: [],
-      avatar: this.generateAvatar(id),
+      avatar: this.generateAvatar(),
     };
   }
 
