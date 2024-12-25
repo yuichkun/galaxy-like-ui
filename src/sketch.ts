@@ -7,7 +7,7 @@ import { drawUserNode } from "./drawingUtils";
 import { ZoomPanManager } from "./zoomPanManager";
 import { updateUserInfo } from "./app";
 import { User } from "./types";
-import { DEFAULT_WEIGHTS } from "./config";
+import { DEFAULT_WEIGHTS, DEFAULT_CONNECTION_DISTANCE } from "./config";
 
 // Initial data
 let users = generateSampleUsers();
@@ -16,7 +16,7 @@ let sketchInstance: ReturnType<typeof initSketch> | null = null;
 
 // Weight controls
 let currentWeights: typeof DEFAULT_WEIGHTS = { ...DEFAULT_WEIGHTS };
-let connectionDistance = 2;
+let currentConnectionDistance = DEFAULT_CONNECTION_DISTANCE;
 
 function setupControls() {
   // Setup weight controls
@@ -46,8 +46,8 @@ function setupControls() {
 
   distanceSlider.addEventListener("input", (e) => {
     const value = parseFloat((e.target as HTMLInputElement).value);
-    distanceDisplay.textContent = value.toFixed(1);
-    connectionDistance = value;
+    distanceDisplay.textContent = value.toFixed(2);
+    currentConnectionDistance = value;
   });
 }
 
@@ -152,12 +152,12 @@ function initSketch(p: p5) {
       points.forEach((point2, j) => {
         if (i < j) {
           const dist = distance(point1, point2);
-          if (dist < connectionDistance) {
+          if (dist < currentConnectionDistance) {
             const x1 = transformX(point1[0]);
             const y1 = transformY(point1[1]);
             const x2 = transformX(point2[0]);
             const y2 = transformY(point2[1]);
-            const alpha = p.map(dist, 0, connectionDistance, 100, 0);
+            const alpha = p.map(dist, 0, currentConnectionDistance, 100, 0);
             p.stroke(100, 150, 255, alpha);
             p.line(x1, y1, x2, y2);
           }

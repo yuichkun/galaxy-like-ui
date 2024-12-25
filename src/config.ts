@@ -3,3 +3,5 @@ export const DEFAULT_WEIGHTS = {
   scores: 0.2,
   companies: 0.1,
 };
+
+export const DEFAULT_CONNECTION_DISTANCE = 0.1;
