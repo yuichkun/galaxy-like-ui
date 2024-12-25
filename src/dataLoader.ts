@@ -33,22 +33,45 @@ function isEmptyRow(row: unknown): boolean {
   return Object.values(row as Record<string, unknown>).every((value) => !value);
 }
 
+async function getGitHubAvatarUrl(username: string): Promise<string> {
+  try {
+    const response = await fetch(`https://api.github.com/users/${username}`);
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.avatar_url;
+  } catch (error) {
+    console.error(`Failed to fetch avatar for ${username}:`, error);
+    return faker.image.avatarGitHub(); // Fallback to faker if GitHub API fails
+  }
+}
+
 export async function loadCSV(file: File): Promise<ValidatedUser[]> {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
-      complete: (results) => {
+      complete: async (results) => {
         try {
-          const processedData = results.data
-            .filter((row) => !isEmptyRow(row))
-            .map((row: any) => ({
-              id: row.id || faker.string.uuid(),
-              name: row.name || faker.internet.userName(),
-              skills: processSkills(row),
-              scores: processScores(row),
-              companies: processCompanies(row.companies),
-              avatar: row.avatar || faker.image.avatarGitHub(),
-            }));
+          const rows = results.data.filter((row) => !isEmptyRow(row));
+
+          // Process all GitHub API requests in parallel
+          const processedData = await Promise.all(
+            rows.map(async (row: any) => {
+              const avatarUrl = row.github_identifier
+                ? await getGitHubAvatarUrl(row.github_identifier)
+                : faker.image.avatarGitHub();
+
+              return {
+                id: row.id || faker.string.uuid(),
+                name: row.name || faker.internet.userName(),
+                skills: processSkills(row),
+                scores: processScores(row),
+                companies: processCompanies(row.companies),
+                avatar: avatarUrl,
+              };
+            })
+          );
 
           const validatedData = validateUsers(processedData);
           resolve(validatedData);
