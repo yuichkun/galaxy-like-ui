@@ -19,8 +19,10 @@ let currentWeights = {
   scores: 1,
   companies: 1,
 };
+let connectionDistance = 2;
 
-function setupWeightControls() {
+function setupControls() {
+  // Setup weight controls
   const controls = ["skills", "scores", "companies"] as const;
   controls.forEach((control) => {
     const slider = document.getElementById(
@@ -37,6 +39,18 @@ function setupWeightControls() {
       reducedData = performPCA(users, currentWeights);
       sketchInstance?.updatePoints();
     });
+  });
+
+  // Setup connection distance control
+  const distanceSlider = document.getElementById(
+    "connection-distance"
+  ) as HTMLInputElement;
+  const distanceDisplay = distanceSlider.nextElementSibling as HTMLSpanElement;
+
+  distanceSlider.addEventListener("input", (e) => {
+    const value = parseFloat((e.target as HTMLInputElement).value);
+    distanceDisplay.textContent = value.toFixed(1);
+    connectionDistance = value;
   });
 }
 
@@ -135,12 +149,12 @@ function initSketch(p: p5) {
       points.forEach((point2, j) => {
         if (i < j) {
           const dist = distance(point1, point2);
-          if (dist < 2) {
+          if (dist < connectionDistance) {
             const x1 = transformX(point1[0]);
             const y1 = transformY(point1[1]);
             const x2 = transformX(point2[0]);
             const y2 = transformY(point2[1]);
-            const alpha = p.map(dist, 0, 2, 100, 0);
+            const alpha = p.map(dist, 0, connectionDistance, 100, 0);
             p.stroke(100, 150, 255, alpha);
             p.line(x1, y1, x2, y2);
           }
@@ -208,6 +222,6 @@ function initSketch(p: p5) {
 
 export const sketch = (p: p5) => {
   sketchInstance = initSketch(p);
-  setupWeightControls(); // Setup weight controls when sketch initializes
+  setupControls();
   return sketchInstance;
 };
