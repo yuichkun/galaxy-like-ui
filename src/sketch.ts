@@ -18,6 +18,7 @@ export const sketch = (p: p5) => {
   const avatarImages: Record<string, p5.Image> = {};
   let time = 0;
   let hoveredUserIndex: number | null = null;
+  let lastShownUserIndex: number | null = null;
   let zoomPanManager: ZoomPanManager;
 
   // Utility functions
@@ -64,12 +65,7 @@ export const sketch = (p: p5) => {
     };
     p.mouseWheel = (e: { deltaY: number }) =>
       zoomPanManager.handleMouseWheel(e as WheelEvent);
-    p.mousePressed = () => {
-      zoomPanManager.handleMousePressed(hoveredUserIndex);
-      if (hoveredUserIndex !== null) {
-        updateUserInfo(users[hoveredUserIndex]);
-      }
-    };
+    p.mousePressed = () => zoomPanManager.handleMousePressed(hoveredUserIndex);
     p.mouseReleased = () => zoomPanManager.handleMouseReleased();
     p.mouseDragged = () => zoomPanManager.handleMouseDragged();
 
@@ -130,6 +126,12 @@ export const sketch = (p: p5) => {
         hoveredUserIndex = i;
         userHovered = true;
         p.cursor("pointer");
+
+        // Update user info if hovering over a different user
+        if (lastShownUserIndex !== i) {
+          lastShownUserIndex = i;
+          updateUserInfo(users[i]);
+        }
       }
 
       drawUserNode(
@@ -145,10 +147,7 @@ export const sketch = (p: p5) => {
       );
     });
 
-    // Update user info if no user is hovered
-    if (!userHovered) {
-      hoveredUserIndex = null;
-      updateUserInfo(null);
-    }
+    // Reset hover state but keep the last shown user info
+    hoveredUserIndex = userHovered ? hoveredUserIndex : null;
   };
 };
