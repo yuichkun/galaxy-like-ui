@@ -124,6 +124,12 @@ function initSketch(p: p5) {
     p.mousePressed = () => {
       if (hoveredUserIndex === null) {
         p.cursor("grabbing");
+      } else {
+        // Focus on the clicked user
+        const point = points[hoveredUserIndex];
+        const mappedX = transformX(point[0]);
+        const mappedY = transformY(point[1]);
+        zoomPanManager.focusOn(mappedX, mappedY);
       }
     };
     p.mouseReleased = () => {
