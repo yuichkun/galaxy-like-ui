@@ -18,6 +18,26 @@ let sketchInstance: ReturnType<typeof initSketch> | null = null;
 let currentWeights: typeof DEFAULT_WEIGHTS = { ...DEFAULT_WEIGHTS };
 let currentConnectionDistance = DEFAULT_CONNECTION_DISTANCE;
 
+// Animation state
+let isAnimating = false;
+let animationTime = 0;
+
+// LFO configurations
+const LFO_CONFIG = {
+  skills: {
+    freqHz: 1 / 5,
+    offset: 0,
+  },
+  scores: {
+    freqHz: 1 / 7, // Slightly slower
+    offset: Math.PI / 3, // 60 degrees offset
+  },
+  companies: {
+    freqHz: 1 / 3, // Slightly faster
+    offset: (Math.PI * 2) / 3, // 120 degrees offset
+  },
+};
+
 function setupControls() {
   // Setup weight controls
   const controls = ["skills", "scores", "companies"] as const;
@@ -38,6 +58,16 @@ function setupControls() {
     });
   });
 
+  // Setup animation control
+  const animateCheckbox = document.getElementById(
+    "animate-weights"
+  ) as HTMLInputElement;
+
+  animateCheckbox.addEventListener("change", (e) => {
+    isAnimating = (e.target as HTMLInputElement).checked;
+    animationTime = 0; // Reset animation time when toggled
+  });
+
   // Setup connection distance control
   const distanceSlider = document.getElementById(
     "connection-distance"
@@ -49,6 +79,35 @@ function setupControls() {
     distanceDisplay.textContent = value.toFixed(2);
     currentConnectionDistance = value;
   });
+}
+
+function updateAnimation() {
+  if (!isAnimating) return;
+
+  // Update animation time
+  animationTime += (Math.PI * 2) / 60; // Base time increment (1 cycle/sec at 60fps)
+
+  // Animate all weights
+  const controls = ["skills", "scores", "companies"] as const;
+  controls.forEach((control) => {
+    const slider = document.getElementById(
+      `${control}-weight`
+    ) as HTMLInputElement;
+    const display = slider.nextElementSibling as HTMLSpanElement;
+
+    // Calculate value using control-specific frequency and offset
+    const { freqHz, offset } = LFO_CONFIG[control];
+    const newValue = 1 + Math.sin(animationTime * freqHz + offset) * 0.5;
+
+    // Update slider and display
+    slider.value = newValue.toString();
+    display.textContent = newValue.toFixed(1);
+    currentWeights[control] = newValue;
+  });
+
+  // Recalculate PCA with new weights
+  reducedData = performPCA(users, currentWeights);
+  sketchInstance?.updatePoints();
 }
 
 export function updateData(newUsers: User[]) {
@@ -146,6 +205,9 @@ function initSketch(p: p5) {
   p.draw = () => {
     p.background(255);
     time += 0.01;
+
+    // Update animation if enabled
+    updateAnimation();
 
     // Draw connections
     points.forEach((point1, i) => {

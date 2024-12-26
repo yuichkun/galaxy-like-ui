@@ -138,6 +138,25 @@
         min-width: 30px;
         color: #666;
       }
+      .animation-control {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        text-transform: uppercase;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: #1976D2;
+        font-size: 14px;
+      }
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -188,6 +207,12 @@
           step="0.01"
         />
         <span class="value"></span>
+      </div>
+      <div class="animation-control">
+        <label class="checkbox-label">
+          <input type="checkbox" id="animate-weights" />
+          <span>Animate</span>
+        </label>
       </div>
     </div>
   </body>
