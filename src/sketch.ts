@@ -157,8 +157,8 @@ function initSketch(p: p5) {
             const y1 = transformY(point1[1]);
             const x2 = transformX(point2[0]);
             const y2 = transformY(point2[1]);
-            const alpha = p.map(dist, 0, currentConnectionDistance, 40, 0);
-            p.stroke(200, 200, 200, alpha);
+            const alpha = p.map(dist, 0, currentConnectionDistance, 200, 100);
+            p.stroke(0, 0, 0, alpha);
             p.line(x1, y1, x2, y2);
           }
         }
