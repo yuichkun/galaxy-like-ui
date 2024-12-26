@@ -4,7 +4,7 @@ export class ZoomPanManager {
   private readonly minScale = 0.1;
   private readonly maxScale = 200;
   private readonly zoomSensitivity = 0.001;
-  private readonly animationDuration = 500; // ms
+  private readonly animationDuration = 400; // ms
 
   // Animation state
   private isAnimating = false;
@@ -78,16 +78,16 @@ export class ZoomPanManager {
     const elapsed = currentTime - this.animationStartTime;
     const progress = Math.min(elapsed / this.animationDuration, 1);
 
-    // Linear interpolation
-    this.scale =
-      this.startScale + (this.targetScale - this.startScale) * progress;
+    // Ease-out function: 1 - (1 - progress)^2
+    const eased = 1 - Math.pow(1 - progress, 2);
+
+    // Interpolate with ease-out
+    this.scale = this.startScale + (this.targetScale - this.startScale) * eased;
     this.offset = {
       x:
-        this.startOffset.x +
-        (this.targetOffset.x - this.startOffset.x) * progress,
+        this.startOffset.x + (this.targetOffset.x - this.startOffset.x) * eased,
       y:
-        this.startOffset.y +
-        (this.targetOffset.y - this.startOffset.y) * progress,
+        this.startOffset.y + (this.targetOffset.y - this.startOffset.y) * eased,
     };
 
     // End animation
