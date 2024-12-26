@@ -37,14 +37,22 @@ export function updateUserInfo(user: User | null) {
       <h3>Scores</h3>
       <div>
         ${Object.entries(user.scores)
-          .map(
-            ([key, value]) => `
+          .map(([key, value]) => {
+            const label =
+              {
+                e_score: "技術力",
+                b_score: "ビジネス力",
+                i_score: "影響力",
+              }[key] || key;
+            return `
           <div class="score-item">
-            <span>${key}:</span>
-            <span>${value.toFixed(2)}</span>
+            <span>${label}:</span>
+            <span class="score-value" ${
+              value >= 3.5 ? 'style="color: rgb(255, 0, 0)"' : ""
+            }>${value.toFixed(2)}</span>
           </div>
-        `
-          )
+        `;
+          })
           .join("")}
       </div>
     </div>
