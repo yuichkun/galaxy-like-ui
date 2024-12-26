@@ -126,7 +126,7 @@ function initSketch(p: p5) {
         const point = points[hoveredUserIndex];
         const mappedX = transformX(point[0]);
         const mappedY = transformY(point[1]);
-        zoomPanManager.focusOn(mappedX, mappedY);
+        zoomPanManager.focusOn(mappedX, mappedY, points, hoveredUserIndex);
       }
     };
     p.mouseReleased = () => {

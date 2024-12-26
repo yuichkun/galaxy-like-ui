@@ -4,12 +4,11 @@ export class ZoomPanManager {
   private readonly minScale = 0.1;
   private readonly maxScale = 200;
   private readonly zoomSensitivity = 0.001;
-  private readonly focusZoomLevel = 80;
+  private readonly animationDuration = 500; // ms
 
   // Animation state
   private isAnimating = false;
   private animationStartTime = 0;
-  private readonly animationDuration = 500; // ms
   private startScale = 1;
   private targetScale = 1;
   private startOffset = { x: 0, y: 0 };
@@ -27,13 +26,31 @@ export class ZoomPanManager {
     };
   }
 
-  focusOn(x: number, y: number) {
+  focusOn(x: number, y: number, points: number[][], focusIndex: number) {
     const screenCenterX = window.innerWidth / 2;
     const screenCenterY = window.innerHeight / 2;
 
+    // Find distance to nearest neighbor
+    let minDistance = Infinity;
+    const focusPoint = points[focusIndex];
+    points.forEach((point, i) => {
+      if (i !== focusIndex) {
+        const dx = point[0] - focusPoint[0];
+        const dy = point[1] - focusPoint[1];
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        minDistance = Math.min(minDistance, dist);
+      }
+    });
+
+    // Calculate zoom level that would put the nearest neighbor at the edge
+    // We want the nearest neighbor to be visible at about 80% of the screen radius
+    const screenRadius = Math.min(window.innerWidth, window.innerHeight) / 2;
+    const targetScale =
+      (screenRadius * 0.8) / ((minDistance * screenRadius) / 2);
+
     // Calculate target scale and offset
     this.startScale = this.scale;
-    this.targetScale = this.focusZoomLevel;
+    this.targetScale = Math.min(this.maxScale, targetScale);
 
     // Calculate the point's new position after zoom
     const zoomFactor = this.targetScale / this.startScale;
