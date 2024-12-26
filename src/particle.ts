@@ -6,19 +6,21 @@ export class Particle {
   private acc: p5.Vector;
   private alpha: number;
   private size: number;
+  private readonly color: number[];
 
   constructor(private p: p5, x: number, y: number) {
     this.pos = p.createVector(x, y);
-    this.vel = p5.Vector.random2D().mult(p.random(0.1, 0.5));
+    this.vel = p5.Vector.random2D().mult(p.random(0.1, 0.3));
     this.acc = p.createVector(0, 0);
-    this.alpha = p.random(50, 100);
-    this.size = p.random(0.5, 1.5);
+    this.alpha = p.random(20, 40);
+    this.size = p.random(0.5, 1);
+    this.color = [33, 150, 243];
   }
 
   update() {
     this.vel.add(this.acc);
     this.pos.add(this.vel);
-    this.alpha -= 0.5;
+    this.alpha -= 0.3;
   }
 
   isDead() {
@@ -27,7 +29,7 @@ export class Particle {
 
   draw() {
     this.p.noStroke();
-    this.p.fill(255, 255, 255, this.alpha);
+    this.p.fill(this.color[0], this.color[1], this.color[2], this.alpha);
     this.p.ellipse(this.pos.x, this.pos.y, this.size, this.size);
   }
 }

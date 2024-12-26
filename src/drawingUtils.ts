@@ -18,12 +18,12 @@ export function drawUserNode(
   const currentPadding = 4 * scaleFactor;
   const currentStrokeWeight = 2 * scaleFactor;
 
-  // Draw glow
-  const glowSize = AVATAR_SIZE + Math.sin(time + index) * 5;
+  // Draw subtle glow
+  const glowSize = AVATAR_SIZE + Math.sin(time + index) * 3;
   p.noStroke();
   for (let size = glowSize; size > 0; size -= 2) {
-    const alpha = p.map(size, glowSize, 0, 0, 50);
-    p.fill(100, 150, 255, alpha);
+    const alpha = p.map(size, glowSize, 0, 0, 20);
+    p.fill(33, 150, 243, alpha);
     p.ellipse(x, y, size, size);
   }
 
@@ -40,7 +40,8 @@ export function drawUserNode(
   const textHeight = 12;
   const textY = y + (AVATAR_SIZE / 2 + 15 * scaleFactor);
 
-  p.fill(10, 15, 30, 230);
+  // Semi-transparent white background for text
+  p.fill(255, 250);
   p.noStroke();
   p.rect(
     x - textWidth / 2 - currentPadding,
@@ -50,14 +51,15 @@ export function drawUserNode(
     4 * scaleFactor
   );
 
-  p.fill(255);
+  // Dark gray text for better readability
+  p.fill(51);
   p.textAlign(p.CENTER);
   p.text(userName, x, textY);
 
   // Add highlight effect when hovered
   if (hoveredUserIndex === index) {
     p.noFill();
-    p.stroke(100, 150, 255);
+    p.stroke(33, 150, 243);
     p.strokeWeight(currentStrokeWeight);
     p.ellipse(x, y, AVATAR_SIZE + 10);
   }

@@ -144,7 +144,7 @@ function initSketch(p: p5) {
   };
 
   p.draw = () => {
-    p.background(10, 15, 30);
+    p.background(255);
     time += 0.01;
 
     // Draw connections
@@ -157,19 +157,20 @@ function initSketch(p: p5) {
             const y1 = transformY(point1[1]);
             const x2 = transformX(point2[0]);
             const y2 = transformY(point2[1]);
-            const alpha = p.map(dist, 0, currentConnectionDistance, 100, 0);
-            p.stroke(100, 150, 255, alpha);
+            const alpha = p.map(dist, 0, currentConnectionDistance, 40, 0);
+            p.stroke(200, 200, 200, alpha);
             p.line(x1, y1, x2, y2);
           }
         }
       });
     });
 
-    // Update particles
+    // Update particles with new colors
     points.forEach(([x, y]) => {
       const mappedX = transformX(x);
       const mappedY = transformY(y);
-      if (p.frameCount % 6 === 0) {
+      if (p.frameCount % 12 === 0) {
+        // Reduced particle frequency
         particles.push(new Particle(p, mappedX, mappedY));
       }
     });
