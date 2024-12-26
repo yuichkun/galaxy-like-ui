@@ -1,6 +1,5 @@
 import p5 from "p5";
 import { generateSampleUsers } from "./userFactory";
-import { Particle } from "./particle";
 import { performPCA } from "./pca";
 import { AVATAR_SIZE, distance, transformCoordinate } from "./visualConfig";
 import { drawUserNode } from "./drawingUtils";
@@ -29,12 +28,12 @@ const LFO_CONFIG = {
     offset: 0,
   },
   scores: {
-    freqHz: 1 / 7, // Slightly slower
-    offset: Math.PI / 3, // 60 degrees offset
+    freqHz: 1 / 7,
+    offset: Math.PI / 3,
   },
   companies: {
-    freqHz: 1 / 3, // Slightly faster
-    offset: (Math.PI * 2) / 3, // 120 degrees offset
+    freqHz: 1 / 3,
+    offset: (Math.PI * 2) / 3,
   },
 };
 
@@ -114,23 +113,21 @@ export function updateData(newUsers: User[]) {
   users = newUsers;
   reducedData = performPCA(users, currentWeights);
   sketchInstance?.updatePoints();
-  updateUserInfo(null); // Reset user info panel
+  updateUserInfo(null);
 }
 
 function initSketch(p: p5) {
   // State
   let points: number[][] = reducedData.to2DArray();
-  const particles: Particle[] = [];
   let avatarImages: Record<string, p5.Image> = {};
   let time = 0;
   let hoveredUserIndex: number | null = null;
   let lastShownUserIndex: number | null = null;
-  let zoomPanManager: ZoomPanManager;
+  let zoomPanManager = new ZoomPanManager();
 
   // Update points when data changes
   const updatePoints = () => {
     // Clear existing state
-    particles.length = 0;
     avatarImages = {};
     hoveredUserIndex = null;
     lastShownUserIndex = null;
@@ -253,24 +250,6 @@ function initSketch(p: p5) {
       });
     });
 
-    // Update particles with new colors
-    points.forEach(([x, y]) => {
-      const mappedX = transformX(x);
-      const mappedY = transformY(y);
-      if (p.frameCount % 12 === 0) {
-        // Reduced particle frequency
-        particles.push(new Particle(p, mappedX, mappedY));
-      }
-    });
-
-    for (let i = particles.length - 1; i >= 0; i--) {
-      particles[i].update();
-      particles[i].draw();
-      if (particles[i].isDead()) {
-        particles.splice(i, 1);
-      }
-    }
-
     // Track if any user is hovered this frame
     let userHovered = false;
 
@@ -309,7 +288,12 @@ function initSketch(p: p5) {
     hoveredUserIndex = userHovered ? hoveredUserIndex : null;
   };
 
-  return { updatePoints };
+  return {
+    updatePoints,
+    transformX,
+    transformY,
+    zoomPanManager,
+  };
 }
 
 export const sketch = (p: p5) => {
