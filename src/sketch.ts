@@ -122,7 +122,7 @@ function initSketch(p: p5) {
   let avatarImages: Record<string, p5.Image> = {};
   let time = 0;
   let hoveredUserIndex: number | null = null;
-  let lastShownUserIndex: number | null = null;
+  let selectedUser: User | null = null;
   let zoomPanManager = new ZoomPanManager();
 
   // Update points when data changes
@@ -130,7 +130,7 @@ function initSketch(p: p5) {
     // Clear existing state
     avatarImages = {};
     hoveredUserIndex = null;
-    lastShownUserIndex = null;
+    selectedUser = null;
 
     // Update with new data
     points = reducedData.to2DArray();
@@ -264,9 +264,10 @@ function initSketch(p: p5) {
         p.cursor("pointer");
 
         // Update user info if hovering over a different user
-        if (lastShownUserIndex !== i) {
-          lastShownUserIndex = i;
-          updateUserInfo(users[i]);
+        const currentUser = users[i];
+        if (selectedUser !== currentUser) {
+          selectedUser = currentUser;
+          updateUserInfo(selectedUser);
         }
       }
 
