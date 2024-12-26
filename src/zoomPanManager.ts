@@ -4,7 +4,16 @@ export class ZoomPanManager {
   private readonly minScale = 0.1;
   private readonly maxScale = 200;
   private readonly zoomSensitivity = 0.001;
-  private readonly focusZoomLevel = 10; // Comfortable zoom level when focusing
+  private readonly focusZoomLevel = 80;
+
+  // Animation state
+  private isAnimating = false;
+  private animationStartTime = 0;
+  private readonly animationDuration = 500; // ms
+  private startScale = 1;
+  private targetScale = 1;
+  private startOffset = { x: 0, y: 0 };
+  private targetOffset = { x: 0, y: 0 };
 
   constructor(initialScale = 1) {
     this.scale = initialScale;
@@ -22,23 +31,57 @@ export class ZoomPanManager {
     const screenCenterX = window.innerWidth / 2;
     const screenCenterY = window.innerHeight / 2;
 
-    // First adjust the zoom level
-    const oldScale = this.scale;
-    this.scale = this.focusZoomLevel;
+    // Calculate target scale and offset
+    this.startScale = this.scale;
+    this.targetScale = this.focusZoomLevel;
 
     // Calculate the point's new position after zoom
-    const zoomFactor = this.scale / oldScale;
+    const zoomFactor = this.targetScale / this.startScale;
     const newX = (x - this.offset.x) * zoomFactor + this.offset.x;
     const newY = (y - this.offset.y) * zoomFactor + this.offset.y;
 
-    // Then center on the point's new position
+    // Calculate target offset to center on the point
     const dx = screenCenterX - newX;
     const dy = screenCenterY - newY;
-    this.offset.x += dx;
-    this.offset.y += dy;
+
+    this.startOffset = { ...this.offset };
+    this.targetOffset = {
+      x: this.offset.x + dx,
+      y: this.offset.y + dy,
+    };
+
+    // Start animation
+    this.isAnimating = true;
+    this.animationStartTime = performance.now();
+  }
+
+  private updateAnimation(currentTime: number) {
+    if (!this.isAnimating) return;
+
+    const elapsed = currentTime - this.animationStartTime;
+    const progress = Math.min(elapsed / this.animationDuration, 1);
+
+    // Linear interpolation
+    this.scale =
+      this.startScale + (this.targetScale - this.startScale) * progress;
+    this.offset = {
+      x:
+        this.startOffset.x +
+        (this.targetOffset.x - this.startOffset.x) * progress,
+      y:
+        this.startOffset.y +
+        (this.targetOffset.y - this.startOffset.y) * progress,
+    };
+
+    // End animation
+    if (progress === 1) {
+      this.isAnimating = false;
+    }
   }
 
   handleZoom(delta: number, mouseX: number, mouseY: number) {
+    if (this.isAnimating) return; // Ignore zoom while animating
+
     const zoomFactor = 1 - delta * this.zoomSensitivity;
     const newScale = Math.max(
       this.minScale,
@@ -54,11 +97,17 @@ export class ZoomPanManager {
   }
 
   handlePan(deltaX: number, deltaY: number) {
+    if (this.isAnimating) return; // Ignore pan while animating
+
     this.offset.x += deltaX;
     this.offset.y += deltaY;
   }
 
-  getTransform() {
+  getTransform(currentTime?: number) {
+    if (this.isAnimating && currentTime !== undefined) {
+      this.updateAnimation(currentTime);
+    }
+
     return {
       scale: this.scale,
       offset: this.offset,

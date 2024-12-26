@@ -89,12 +89,12 @@ function initSketch(p: p5) {
   };
 
   const transformX = (x: number) => {
-    const { scale, offset } = zoomPanManager.getTransform();
+    const { scale, offset } = zoomPanManager.getTransform(p.millis());
     return transformCoordinate(x, p, "width", scale, offset.x);
   };
 
   const transformY = (y: number) => {
-    const { scale, offset } = zoomPanManager.getTransform();
+    const { scale, offset } = zoomPanManager.getTransform(p.millis());
     return transformCoordinate(y, p, "height", scale, offset.y);
   };
 
