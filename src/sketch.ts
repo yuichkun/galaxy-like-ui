@@ -159,7 +159,33 @@ function initSketch(p: p5) {
             const y2 = transformY(point2[1]);
             const alpha = p.map(dist, 0, currentConnectionDistance, 200, 100);
             p.stroke(0, 0, 0, alpha);
-            p.line(x1, y1, x2, y2);
+
+            // Calculate control points for Bézier curve
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const curveControlMidpoint = 0.02;
+            const curveControlOffset = 0.02;
+            const controlX1 =
+              x1 + dx * curveControlMidpoint - dy * curveControlOffset;
+            const controlY1 =
+              y1 + dy * curveControlMidpoint + dx * curveControlOffset;
+            const controlX2 =
+              x2 - dx * curveControlMidpoint - dy * curveControlOffset;
+            const controlY2 =
+              y2 - dy * curveControlMidpoint + dx * curveControlOffset;
+
+            // Draw Bézier curve instead of straight line
+            p.noFill();
+            p.bezier(
+              x1,
+              y1,
+              controlX1,
+              controlY1,
+              controlX2,
+              controlY2,
+              x2,
+              y2
+            );
           }
         }
       });
