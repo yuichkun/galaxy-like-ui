@@ -1,6 +1,24 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import "./App.css";
 import { OrbitControls } from "@react-three/drei";
+import { useRef } from "react";
+import { Mesh } from "three";
+
+const RotatingBox = () => {
+  const meshRef = useRef<Mesh>(null);
+  useFrame(() => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x += 0.01;
+      meshRef.current.rotation.y += 0.016;
+    }
+  });
+  return (
+    <mesh ref={meshRef}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color="white" />
+    </mesh>
+  );
+};
 
 function App() {
   return (
@@ -14,9 +32,7 @@ function App() {
           decay={0}
           intensity={Math.PI}
         />
-        <mesh>
-          <boxGeometry args={[1, 1, 1]} />
-        </mesh>
+        <RotatingBox />
         <OrbitControls />
       </Canvas>
     </div>
