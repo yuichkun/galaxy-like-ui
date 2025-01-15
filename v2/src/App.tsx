@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import "./App.css";
+import { OrbitControls } from "@react-three/drei";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <mesh>
           <boxGeometry args={[1, 1, 1]} />
         </mesh>
+        <OrbitControls />
       </Canvas>
     </div>
   );
