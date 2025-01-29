@@ -32,6 +32,9 @@ function App() {
       max: 5,
       step: 0.1,
     },
+    debug: {
+      value: false,
+    },
   });
 
   // Generate URLs once at parent level
@@ -43,7 +46,7 @@ function App() {
 
   return (
     <div id="canvas-container">
-      <Canvas orthographic camera={{ zoom: 200, position: [0, 0, 100] }}>
+      <Canvas camera={{ zoom: 6, position: [0, 0, 10] }}>
         <Stage
           environment={stageConfig.environment}
           intensity={stageConfig.intensity}
@@ -53,7 +56,7 @@ function App() {
           <Card key={1} position={[-2, 0, 0]} avatarUrl={avatarUrls[1]} />
           <Card key={2} position={[2, 0, 0]} avatarUrl={avatarUrls[2]} />
         </Stage>
-        <OrbitControls enabled={false} />
+        <OrbitControls enabled={stageConfig.debug} />
       </Canvas>
     </div>
   );
